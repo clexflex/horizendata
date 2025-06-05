@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   BarChart3, 
   Search, 
@@ -26,7 +26,6 @@ import {
   Star,
   Check,
   X,
-  Filter,
   MapPin,
   Mail,
   Phone,
@@ -37,10 +36,10 @@ import {
   Instagram,
   ShieldCheck,
   TrendingUp,
-  ChevronLeft
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-
+import { LineChart, Line,  Tooltip, ResponsiveContainer,PieChart, Pie, Cell } from 'recharts';
+import { CookieBanner } from '@/components/layout';
+import { AnimatedCounters } from '@/components/common';
 // Mock data for charts
 const cloudData = [
   { year: '2020', value: 400 },
@@ -680,7 +679,7 @@ export default function HorizendataHomepage() {
         <div className="mt-16 text-center max-w-3xl mx-auto">
           <h3 className="text-xl font-semibold mb-4">Need a custom solution?</h3>
           <p className="text-muted-foreground mb-6">
-            Our enterprise solutions can be tailored to meet your organization's specific requirements. Contact our sales team to discuss custom pricing, data sets, and integration options.
+            Our enterprise solutions can be tailored to meet your organization&apos;s specific requirements. Contact our sales team to discuss custom pricing, data sets, and integration options.
           </p>
           <Button size="lg">Schedule a Consultation</Button>
         </div>
@@ -832,7 +831,7 @@ export default function HorizendataHomepage() {
                 </div>
                 <div className="w-full md:w-2/3">
                   <blockquote className="text-xl md:text-2xl font-medium leading-relaxed">
-                    "Horizendata has transformed how our investment team approaches market analysis. Their comprehensive data sets and intuitive visualizations have become essential tools for our decision-making process."
+                    &quot;Horizendata has transformed how our investment team approaches market analysis. Their comprehensive data sets and intuitive visualizations have become essential tools for our decision-making process.&quot;
                   </blockquote>
                 </div>
               </div>
@@ -1100,14 +1099,15 @@ export default function HorizendataHomepage() {
     <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
       <Header />
       <main>
+        <CookieBanner />
         <HeroSection />
-
         <TrendingStatistics />
         <PopularTopics />
         <PricingPlans />
         <DataVisualizationShowcase />
         <Testimonials />
         <WhyChooseUs />
+        <AnimatedCounters />
         <ContactSection />
       </main>
       <Footer />

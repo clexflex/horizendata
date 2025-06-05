@@ -27,3 +27,27 @@ export interface TestimonialData {
   rating: number;
   quote: string;
 }
+
+export interface FAQ {
+  id: string;
+  question: string;
+  answer: string;
+  popular?: boolean;
+}
+
+export interface PricingPlan {
+  id: string;
+  name: string;
+  price: string;
+  period: string;
+  features: string[];
+  popular?: boolean;
+}
+
+export interface ContactFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  company: string;
+  message: string;
+}
