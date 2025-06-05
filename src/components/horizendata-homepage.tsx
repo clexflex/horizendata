@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { 
   BarChart3, 
   Search, 
-  ChevronDown, 
   ChevronRight, 
   Heart, 
   DollarSign, 
@@ -16,9 +15,6 @@ import {
   Building2, 
   Wheat, 
   Factory,
-  Menu,
-  Sun,
-  Moon,
   ArrowRight,
   Download,
   Share2,
@@ -26,20 +22,18 @@ import {
   Star,
   Check,
   X,
-  MapPin,
-  Mail,
-  Phone,
-  Send,
-  Twitter,
-  Linkedin,
-  Facebook,
-  Instagram,
   ShieldCheck,
   TrendingUp,
 } from 'lucide-react';
-import { LineChart, Line,  Tooltip, ResponsiveContainer,PieChart, Pie, Cell } from 'recharts';
-import { CookieBanner } from '@/components/layout';
+import { LineChart, Line, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { AnimatedCounters } from '@/components/common';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+
 // Mock data for charts
 const cloudData = [
   { year: '2020', value: 400 },
@@ -68,177 +62,14 @@ const pieData = [
 
 const companies = ['Microsoft', 'Google', 'Amazon', 'Apple', 'IBM', 'Oracle'];
 
-const Button = ({ children, variant = 'default', size = 'default', className = '', ...props }) => {
-  const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
-  const variants = {
-    default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-    outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-    ghost: 'hover:bg-accent hover:text-accent-foreground',
-  };
-  const sizes = {
-    default: 'h-10 px-4 py-2',
-    sm: 'h-9 rounded-md px-3',
-    lg: 'h-11 rounded-md px-8',
-    icon: 'h-10 w-10',
-  };
-  
-  return (
-    <button 
-      className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-};
-
-const Card = ({ children, className = '', ...props }) => (
-  <div className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`} {...props}>
-    {children}
-  </div>
-);
-
-const Input = ({ className = '', ...props }) => (
-  <input
-    className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
-    {...props}
-  />
-);
-
-const Badge = ({ children, className = '', variant = 'default' }) => {
-  const variants = {
-    default: 'bg-primary text-primary-foreground',
-    secondary: 'bg-secondary text-secondary-foreground',
-    destructive: 'bg-destructive text-destructive-foreground',
-    outline: 'border border-input bg-background',
-  };
-  
-  return (
-    <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors ${variants[variant]} ${className}`}>
-      {children}
-    </div>
-  );
-};
-
-const Tabs = ({ defaultValue, children, className = '' }) => {
-  const [activeTab, setActiveTab] = useState(defaultValue);
-  
-  return (
-    <div className={className}>
-      {React.Children.map(children, child =>
-        React.cloneElement(child, { activeTab, setActiveTab })
-      )}
-    </div>
-  );
-};
-
-const TabsList = ({ children, activeTab, setActiveTab, className = '' }) => (
-  <div className={`inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground ${className}`}>
-    {React.Children.map(children, child =>
-      React.cloneElement(child, { activeTab, setActiveTab })
-    )}
-  </div>
-);
-
-const TabsTrigger = ({ value, children, activeTab, setActiveTab, className = '' }) => (
-  <button
-    className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all ${
-      activeTab === value
-        ? 'bg-background text-foreground shadow-sm'
-        : 'hover:bg-accent hover:text-accent-foreground'
-    } ${className}`}
-    onClick={() => setActiveTab(value)}
-  >
-    {children}
-  </button>
-);
-
-const TabsContent = ({ value, children, activeTab, className = '' }) => (
-  activeTab === value ? <div className={className}>{children}</div> : null
-);
-
-const Switch = ({ checked, onCheckedChange, className = '' }) => (
-  <button
-    role="switch"
-    aria-checked={checked}
-    className={`peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-      checked ? 'bg-primary' : 'bg-input'
-    } ${className}`}
-    onClick={() => onCheckedChange(!checked)}
-  >
-    <span
-      className={`pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform ${
-        checked ? 'translate-x-5' : 'translate-x-0'
-      }`}
-    />
-  </button>
-);
-
-const Separator = ({ className = '' }) => (
-  <div className={`shrink-0 bg-border h-[1px] w-full ${className}`} />
-);
-
 export default function HorizendataHomepage() {
-  const [isDark, setIsDark] = useState(false);
   const [isYearly, setIsYearly] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All');
-  const [activeVisualization, setActiveVisualization] = useState('tech-trends');
   const [searchQuery, setSearchQuery] = useState('');
-
-  // Header Component
-  const Header = () => (
-    <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background/80 backdrop-blur-md border-b">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center space-x-2">
-          <BarChart3 className="h-8 w-8 text-primary " />
-          <span className="font-bold text-xl tracking-tight">Horizendata</span>
-        </div>
-        
-        <nav className="hidden md:flex items-center space-x-6">
-          <div className="relative group">
-            <button className="flex items-center space-x-1 hover:text-primary transition-colors">
-              <span>Solutions</span>
-              <ChevronDown className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="relative group">
-            <button className="flex items-center space-x-1 hover:text-primary transition-colors">
-              <span>Industries</span>
-              <ChevronDown className="h-4 w-4" />
-            </button>
-          </div>
-          <a href="#pricing" className="hover:text-primary transition-colors">Pricing</a>
-          <a href="#resources" className="hover:text-primary transition-colors">Resources</a>
-        </nav>
-
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="hidden md:flex">
-            <Search className="h-5 w-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsDark(!isDark)}
-          >
-            {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </Button>
-          <Button variant="outline" className="hidden md:inline-flex">
-            Log in
-          </Button>
-          <Button className="hidden md:inline-flex">
-            Get Started
-          </Button>
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Menu className="h-5 w-5" />
-          </Button>
-        </div>
-      </div>
-    </header>
-  );
 
   // Hero Section
   const HeroSection = () => (
-    <section className="relative min-h-[90vh] flex items-center justify-center  overflow-hidden pt-20">
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background/90" />
         <div className="absolute inset-0 bg-gradient-radial from-primary/3 via-transparent to-transparent" />
@@ -344,7 +175,6 @@ export default function HorizendataHomepage() {
       </div>
     </section>
   );
-
 
   // Trending Statistics Section
   const TrendingStatistics = () => (
@@ -456,7 +286,7 @@ export default function HorizendataHomepage() {
     </section>
   );
 
-  // Popular Topics Section
+  // Popular Topics Section  
   const PopularTopics = () => {
     const topics = [
       { icon: Heart, label: 'Healthcare', active: true },
@@ -473,7 +303,7 @@ export default function HorizendataHomepage() {
 
     return (
       <section className="py-20 bg-gradient-to-br from-muted/20 via-muted/30 to-muted/40">
-        <div className=" max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               Explore Popular Topics
@@ -528,7 +358,7 @@ export default function HorizendataHomepage() {
 
   // Pricing Plans Section
   const PricingPlans = () => (
-    <section id="pricing" className="py-20 bg-background">
+    <section className="py-20 bg-background">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
@@ -904,213 +734,16 @@ export default function HorizendataHomepage() {
     </section>
   );
 
-  // Contact Section
-  const ContactSection = () => (
-    <section className="py-20 bg-background">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-            Global Presence, Local Expertise
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            With offices around the world, our research teams deliver insights with both global perspective and local context.
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          <div className="lg:col-span-3">
-            <Card className="h-full">
-              <div className="h-[400px] lg:h-[500px] bg-muted/50 rounded-lg flex items-center justify-center">
-                <p className="text-muted-foreground">Interactive world map would display here</p>
-              </div>
-            </Card>
-          </div>
-          
-          <div className="lg:col-span-2">
-            <Card>
-              <div className="p-6">
-                <h3 className="text-2xl font-semibold mb-2">Contact Us</h3>
-                <p className="text-sm text-muted-foreground mb-6">
-                  Have a question or need custom research? Our team is here to help.
-                </p>
-                
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium block mb-1">First Name</label>
-                      <Input placeholder="Enter your first name" />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium block mb-1">Last Name</label>
-                      <Input placeholder="Enter your last name" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium block mb-1">Email</label>
-                    <Input type="email" placeholder="Enter your email" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium block mb-1">Company</label>
-                    <Input placeholder="Enter your company name" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium block mb-1">Message</label>
-                    <textarea
-                      className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      placeholder="How can we help you?"
-                      rows={4}
-                    />
-                  </div>
-                  <Button className="w-full">Submit</Button>
-                </div>
-                
-                <div className="mt-6 pt-6 border-t">
-                  <div className="space-y-3">
-                    <div className="flex items-center">
-                      <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
-                      <span className="text-sm">contact@horizendata.com</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
-                      <span className="text-sm">+1 (555) 123-4567</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </div>
-        
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { city: 'New York', address: '350 Fifth Avenue, New York, NY 10118' },
-            { city: 'London', address: '30 St Mary Axe, London EC3A 8BF' },
-            { city: 'Singapore', address: '80 Raffles Place, Singapore 048624' },
-            { city: 'Tokyo', address: 'Marunouchi, Chiyoda, Tokyo 100-0005' }
-          ].map((office, index) => (
-            <Card key={index} className="text-center p-6">
-              <MapPin className="h-8 w-8 text-primary mx-auto mb-3" />
-              <h3 className="font-semibold mb-2">{office.city}</h3>
-              <p className="text-sm text-muted-foreground">{office.address}</p>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-
-  // Footer Component
-  const Footer = () => (
-    <footer className="bg-primary text-primary-foreground pt-16 pb-6">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <BarChart3 className="h-8 w-8" />
-              <span className="text-xl font-bold tracking-tight">Horizendata</span>
-            </div>
-            <p className="text-primary-foreground/80 max-w-xs">
-              Empowering organizations with data-driven insights across markets and industries since 2015.
-            </p>
-            <div className="flex space-x-4">
-              {[Twitter, Linkedin, Facebook, Instagram].map((Icon, index) => (
-                <a
-                  key={index}
-                  href="#"
-                  className="bg-primary-foreground/10 hover:bg-primary-foreground/20 transition-colors h-10 w-10 rounded-full flex items-center justify-center"
-                >
-                  <Icon className="h-5 w-5" />
-                </a>
-              ))}
-            </div>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Solutions</h3>
-            <ul className="space-y-3">
-              {['Market Research', 'Industry Insights', 'Custom Research', 'Data Visualization', 'API Access'].map((item) => (
-                <li key={item}>
-                  <a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-                    {item}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Resources</h3>
-            <ul className="space-y-3">
-              {['Blog', 'Webinars', 'Free Reports', 'Case Studies', 'Research Methodologies'].map((item) => (
-                <li key={item}>
-                  <a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-                    {item}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Stay Informed</h3>
-            <p className="text-primary-foreground/80 mb-4">
-              Subscribe to receive the latest market insights and research updates.
-            </p>
-            <div className="flex">
-              <Input
-                type="email"
-                className="rounded-r-none bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50"
-                placeholder="Your email"
-              />
-              <Button className="rounded-l-none bg-accent hover:bg-accent/90 text-accent-foreground">
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-        
-        <Separator className="my-8 bg-primary-foreground/20" />
-        
-        <div className="flex flex-col md:flex-row justify-between items-center text-sm text-primary-foreground/70">
-          <div className="flex flex-wrap gap-x-6 gap-y-2 mb-4 md:mb-0">
-            {['About', 'Contact', 'Careers', 'Terms', 'Privacy', 'Cookies'].map((item) => (
-              <a key={item} href="#" className="hover:text-primary-foreground transition-colors">
-                {item}
-              </a>
-            ))}
-          </div>
-          <div className="flex flex-wrap justify-center gap-4">
-            {['GDPR', 'HIPAA', 'ISO 27001', 'CCPA'].map((compliance) => (
-              <Badge key={compliance} className="bg-primary-foreground/10 text-primary-foreground">
-                {compliance}
-              </Badge>
-            ))}
-          </div>
-        </div>
-        
-        <div className="mt-6 text-center text-xs text-primary-foreground/50">
-          © 2025 Horizendata. All rights reserved.
-        </div>
-      </div>
-    </footer>
-  );
-
   return (
-    <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
-      <Header />
-      <main>
-        <CookieBanner />
-        <HeroSection />
-        <TrendingStatistics />
-        <PopularTopics />
-        <PricingPlans />
-        <DataVisualizationShowcase />
-        <Testimonials />
-        <WhyChooseUs />
-        <AnimatedCounters />
-        <ContactSection />
-      </main>
-      <Footer />
+    <div className="min-h-screen">
+      <HeroSection />
+      <TrendingStatistics />
+      <PopularTopics />
+      <PricingPlans />
+      <DataVisualizationShowcase />
+      <Testimonials />
+      <WhyChooseUs />
+      <AnimatedCounters />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Header, Footer, CookieBanner } from "@/components/layout";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -46,7 +47,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+           <Header />
+          <main className="pt-16 min-h-screen">
+            {children}
+          </main>
+          <Footer />
+          <CookieBanner />
         </ThemeProvider>
       </body>
     </html>

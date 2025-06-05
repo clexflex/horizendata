@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { Cookie, Settings, Check, X, Eye, Shield, BarChart3, Target } from 'lucide-react';
 

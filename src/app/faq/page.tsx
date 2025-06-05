@@ -1,5 +1,7 @@
+
 import { FAQSection } from '@/components/sections';
 import { Metadata } from 'next';
+
 
 export const metadata: Metadata = {
   title: 'Frequently Asked Questions',
