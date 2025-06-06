@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState } from 'react';
 import { 
   ChevronDown, 
@@ -15,15 +16,29 @@ import {
   ExternalLink
 } from 'lucide-react';
 
-const Button = ({ children, variant = 'default', size = 'default', className = '', ...props }) => {
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: 'default' | 'outline' | 'ghost' | 'link';
+  size?: 'default' | 'sm' | 'lg';
+  className?: string;
+  onClick?: () => void;
+}
+
+const Button: React.FC<ButtonProps> = ({ 
+  children, 
+  variant = 'default', 
+  size = 'default', 
+  className = '', 
+  ...props 
+}) => {
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
-  const variants = {
+  const variants: Record<string, string> = {
     default: 'bg-primary text-primary-foreground hover:bg-primary/90',
     outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
     ghost: 'hover:bg-accent hover:text-accent-foreground',
     link: 'text-primary underline-offset-4 hover:underline',
   };
-  const sizes = {
+  const sizes: Record<string, string> = {
     default: 'h-10 px-4 py-2',
     sm: 'h-9 rounded-md px-3',
     lg: 'h-11 rounded-md px-8',
@@ -39,7 +54,16 @@ const Button = ({ children, variant = 'default', size = 'default', className = '
   );
 };
 
-const Input = ({ className = '', icon: Icon, ...props }) => (
+interface InputProps {
+  className?: string;
+  type?: string;
+  placeholder?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  icon?: React.ComponentType<{ className?: string }>;
+}
+
+const Input: React.FC<InputProps> = ({ className = '', icon: Icon, ...props }) => (
   <div className="relative">
     {Icon && (
       <Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -53,8 +77,14 @@ const Input = ({ className = '', icon: Icon, ...props }) => (
   </div>
 );
 
-const Badge = ({ children, className = '', variant = 'default' }) => {
-  const variants = {
+interface BadgeProps {
+  children: React.ReactNode;
+  className?: string;
+  variant?: 'default' | 'secondary' | 'outline' | 'success';
+}
+
+const Badge: React.FC<BadgeProps> = ({ children, className = '', variant = 'default' }) => {
+  const variants: Record<string, string> = {
     default: 'bg-primary text-primary-foreground',
     secondary: 'bg-secondary text-secondary-foreground',
     outline: 'border border-input bg-background',
@@ -251,7 +281,15 @@ const faqData = [
 ];
 
 // Individual FAQ Item Component
-const FAQItem = ({ question, answer, isOpen, onToggle, popular = false }) => (
+interface FAQItemProps {
+  question: string;
+  answer: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  popular?: boolean;
+}
+
+const FAQItem: React.FC<FAQItemProps> = ({ question, answer, isOpen, onToggle, popular = false }) => (
   <div className="border border-border rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md">
     <button
       className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-muted/50 transition-colors"
@@ -276,11 +314,27 @@ const FAQItem = ({ question, answer, isOpen, onToggle, popular = false }) => (
 );
 
 // FAQ Category Component
-const FAQCategory = ({ category, searchTerm }) => {
-  const [openItems, setOpenItems] = useState(new Set());
+interface FAQCategoryProps {
+  category: {
+    id: string;
+    title: string;
+    icon: React.ComponentType<{ className?: string }>;
+    color: string;
+    questions: Array<{
+      id: string;
+      question: string;
+      answer: string;
+      popular?: boolean;
+    }>;
+  };
+  searchTerm: string;
+}
+
+const FAQCategory: React.FC<FAQCategoryProps> = ({ category, searchTerm }) => {
+  const [openItems, setOpenItems] = useState(new Set<string>());
   const Icon = category.icon;
 
-  const toggleItem = (questionId) => {
+  const toggleItem = (questionId: string) => {
     const newOpenItems = new Set(openItems);
     if (newOpenItems.has(questionId)) {
       newOpenItems.delete(questionId);
@@ -422,7 +476,7 @@ export default function FAQSection() {
               Most Popular Questions
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {popularQuestions.map((question, index) => (
+              {popularQuestions.map((question) => (
                 <div key={question.id} className="border border-border rounded-lg p-4 hover:bg-muted/50 transition-colors">
                   <div className="flex items-start justify-between mb-2">
                     <h4 className="font-medium text-sm">{question.question}</h4>

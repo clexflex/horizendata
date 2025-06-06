@@ -30,9 +30,7 @@ export function ThemeProvider({
   children,
   defaultTheme = "system",
   storageKey = "theme",
-  attribute = "class",
   enableSystem = true,
-  disableTransitionOnChange = false,
   ...props
 }: ThemeProviderProps) {
   // Initialize with defaultTheme to avoid SSR issues
@@ -49,7 +47,7 @@ export function ThemeProvider({
       if (storedTheme) {
         setTheme(storedTheme);
       }
-    } catch (error) {
+    } catch {
       // localStorage might not be available
       console.warn("localStorage is not available");
     }
@@ -82,7 +80,7 @@ export function ThemeProvider({
       if (mounted) {
         try {
           localStorage.setItem(storageKey, theme);
-        } catch (error) {
+        } catch {
           console.warn("Unable to save theme to localStorage");
         }
       }

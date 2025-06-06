@@ -2,21 +2,37 @@
 
 import React, { useState, useEffect } from 'react';
 import { Cookie, Settings, Check, X, Eye, Shield, BarChart3, Target } from 'lucide-react';
+
 interface CookiePreferences {
   necessary: boolean;
   analytics: boolean;
   functional: boolean;
   marketing: boolean;
 }
-const Button = ({ children, variant = 'default', size = 'default', className = '', ...props }) => {
+
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: 'default' | 'outline' | 'ghost' | 'secondary';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+  className?: string;
+  onClick?: () => void;
+}
+
+const Button: React.FC<ButtonProps> = ({ 
+  children, 
+  variant = 'default', 
+  size = 'default', 
+  className = '', 
+  ...props 
+}) => {
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
-  const variants = {
+  const variants: Record<string, string> = {
     default: 'bg-primary text-primary-foreground hover:bg-primary/90',
     outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
     ghost: 'hover:bg-accent hover:text-accent-foreground',
     secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
   };
-  const sizes = {
+  const sizes: Record<string, string> = {
     default: 'h-10 px-4 py-2',
     sm: 'h-9 rounded-md px-3',
     lg: 'h-11 rounded-md px-8',
@@ -33,7 +49,14 @@ const Button = ({ children, variant = 'default', size = 'default', className = '
   );
 };
 
-const Switch = ({ checked, onCheckedChange, disabled = false, className = '' }) => (
+interface SwitchProps {
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  disabled?: boolean;
+  className?: string;
+}
+
+const Switch: React.FC<SwitchProps> = ({ checked, onCheckedChange, disabled = false, className = '' }) => (
   <button
     role="switch"
     aria-checked={checked}
@@ -51,8 +74,14 @@ const Switch = ({ checked, onCheckedChange, disabled = false, className = '' }) 
   </button>
 );
 
-const Badge = ({ children, className = '', variant = 'default' }) => {
-  const variants = {
+interface BadgeProps {
+  children: React.ReactNode;
+  className?: string;
+  variant?: 'default' | 'secondary' | 'success' | 'warning' | 'error';
+}
+
+const Badge: React.FC<BadgeProps> = ({ children, className = '', variant = 'default' }) => {
+  const variants: Record<string, string> = {
     default: 'bg-primary text-primary-foreground',
     secondary: 'bg-secondary text-secondary-foreground',
     success: 'bg-green-500 text-white',
@@ -120,13 +149,13 @@ const cookieCategories = [
 ];
 
 // Cookie management utilities
-const getCookieConsent = () => {
+const getCookieConsent = (): CookiePreferences | null => {
   if (typeof window === 'undefined') return null;
   const consent = localStorage.getItem('cookie_consent');
   return consent ? JSON.parse(consent) : null;
 };
 
-const setCookieConsent = (preferences) => {
+const setCookieConsent = (preferences: CookiePreferences): void => {
   if (typeof window === 'undefined') return;
   localStorage.setItem('cookie_consent', JSON.stringify({
     ...preferences,
@@ -135,7 +164,7 @@ const setCookieConsent = (preferences) => {
   }));
 };
 
-const hasGivenConsent = () => {
+const hasGivenConsent = (): boolean => {
   const consent = getCookieConsent();
   return consent !== null;
 };
@@ -164,7 +193,7 @@ export default function CookieBanner() {
   }, []);
 
   const handleAcceptAll = () => {
-    const allAccepted = {
+    const allAccepted: CookiePreferences = {
       necessary: true,
       analytics: true,
       functional: true,
@@ -187,7 +216,7 @@ export default function CookieBanner() {
   };
 
   const handleRejectAll = () => {
-    const onlyNecessary = {
+    const onlyNecessary: CookiePreferences = {
       necessary: true,
       analytics: false,
       functional: false,
@@ -198,7 +227,7 @@ export default function CookieBanner() {
     setIsVisible(false);
   };
 
-  const handlePreferenceChange = (categoryId, enabled) => {
+  const handlePreferenceChange = (categoryId: keyof CookiePreferences, enabled: boolean) => {
     if (categoryId === 'necessary') return; // Cannot disable necessary cookies
     
     setPreferences(prev => ({
@@ -207,7 +236,7 @@ export default function CookieBanner() {
     }));
   };
 
-  const initializeTrackingScripts = (consents) => {
+  const initializeTrackingScripts = (consents: CookiePreferences) => {
     // Google Analytics
     if (consents.analytics && typeof window !== 'undefined') {
       // Initialize Google Analytics
@@ -228,7 +257,11 @@ export default function CookieBanner() {
   };
 
   // Settings component for managing preferences later
-  const CookieSettings = ({ onClose }) => (
+  interface CookieSettingsProps {
+    onClose: () => void;
+  }
+
+  const CookieSettings: React.FC<CookieSettingsProps> = ({ onClose }) => (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-background rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
         <div className="p-6 border-b">
@@ -265,8 +298,8 @@ export default function CookieBanner() {
                       </div>
                     </div>
                     <Switch
-                      checked={preferences[category.id]}
-                      onCheckedChange={(checked) => handlePreferenceChange(category.id, checked)}
+                      checked={preferences[category.id as keyof CookiePreferences]}
+                      onCheckedChange={(checked) => handlePreferenceChange(category.id as keyof CookiePreferences, checked)}
                       disabled={category.required}
                     />
                   </div>
@@ -375,10 +408,18 @@ export default function CookieBanner() {
 }
 
 // Cookie Settings Button Component (for footer or settings page)
-export function CookieSettingsButton({ className = '' }) {
+interface CookieSettingsButtonProps {
+  className?: string;
+}
+
+export function CookieSettingsButton({ className = '' }: CookieSettingsButtonProps) {
   const [showSettings, setShowSettings] = useState(false);
 
-  const CookieSettings = ({ onClose }) => (
+  interface CookieSettingsModalProps {
+    onClose: () => void;
+  }
+
+  const CookieSettingsModal: React.FC<CookieSettingsModalProps> = ({ onClose }) => (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-background rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
         <div className="p-6 border-b">
@@ -399,7 +440,7 @@ export function CookieSettingsButton({ className = '' }) {
             {cookieCategories.map((category) => {
               const Icon = category.icon;
               const consent = getCookieConsent();
-              const isEnabled = consent ? consent[category.id] : false;
+              const isEnabled = consent ? consent[category.id as keyof CookiePreferences] : false;
               
               return (
                 <div key={category.id} className="flex items-center justify-between p-3 border rounded-lg">
@@ -447,7 +488,7 @@ export function CookieSettingsButton({ className = '' }) {
       </Button>
       
       {showSettings && (
-        <CookieSettings onClose={() => setShowSettings(false)} />
+        <CookieSettingsModal onClose={() => setShowSettings(false)} />
       )}
     </>
   );
@@ -455,7 +496,7 @@ export function CookieSettingsButton({ className = '' }) {
 
 // Hook for checking cookie consent
 export function useCookieConsent() {
-  const [consent, setConsent] = useState(null);
+  const [consent, setConsent] = useState<CookiePreferences | null>(null);
   
   useEffect(() => {
     setConsent(getCookieConsent());
@@ -464,7 +505,7 @@ export function useCookieConsent() {
   return {
     consent,
     hasConsent: hasGivenConsent(),
-    updateConsent: (newConsent) => {
+    updateConsent: (newConsent: CookiePreferences) => {
       setCookieConsent(newConsent);
       setConsent(newConsent);
     }

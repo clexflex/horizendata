@@ -1,6 +1,8 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
+
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, Filter, X, TrendingUp, FileText, BarChart3 } from 'lucide-react';
+
 interface SearchResult {
   id: number;
   title: string;
@@ -20,14 +22,20 @@ interface ButtonProps {
   onClick?: () => void;
 }
 
-const Button = ({ children, variant = 'default', size = 'default', className = '', ...props }) => {
+const Button: React.FC<ButtonProps> = ({ 
+  children, 
+  variant = 'default', 
+  size = 'default', 
+  className = '', 
+  ...props 
+}) => {
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
-  const variants = {
+  const variants: Record<string, string> = {
     default: 'bg-primary text-primary-foreground hover:bg-primary/90',
     outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
     ghost: 'hover:bg-accent hover:text-accent-foreground',
   };
-  const sizes = {
+  const sizes: Record<string, string> = {
     default: 'h-10 px-4 py-2',
     sm: 'h-9 rounded-md px-3',
     lg: 'h-11 rounded-md px-8',
@@ -44,15 +52,31 @@ const Button = ({ children, variant = 'default', size = 'default', className = '
   );
 };
 
-const Input = ({ className = '', ...props }) => (
+interface InputProps {
+  className?: string;
+  type?: string;
+  placeholder?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onFocus?: () => void;
+  onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+}
+
+const Input: React.FC<InputProps> = ({ className = '', ...props }) => (
   <input
     className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
     {...props}
   />
 );
 
-const Badge = ({ children, className = '', variant = 'default' }) => {
-  const variants = {
+interface BadgeProps {
+  children: React.ReactNode;
+  className?: string;
+  variant?: 'default' | 'secondary' | 'outline';
+}
+
+const Badge: React.FC<BadgeProps> = ({ children, className = '', variant = 'default' }) => {
+  const variants: Record<string, string> = {
     default: 'bg-primary text-primary-foreground',
     secondary: 'bg-secondary text-secondary-foreground',
     outline: 'border border-input bg-background',
@@ -66,7 +90,7 @@ const Badge = ({ children, className = '', variant = 'default' }) => {
 };
 
 // Mock data for search suggestions and results
-const mockReports = [
+const mockReports: SearchResult[] = [
   {
     id: 1,
     title: "Global Healthcare Market Analysis 2024",
@@ -145,11 +169,11 @@ export default function AdvancedSearch() {
   const [isLoading, setIsLoading] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>(['AI trends', 'Healthcare data']);
 
-  const searchRef = useRef(null);
-  const resultsRef = useRef(null);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   // Simulate search API call
-  const performSearch = async (searchQuery) => {
+  const performSearch = useCallback(async (searchQuery: string) => {
     if (!searchQuery.trim()) {
       setResults([]);
       return;
@@ -161,7 +185,7 @@ export default function AdvancedSearch() {
     await new Promise(resolve => setTimeout(resolve, 300));
     
     // Filter results based on query, category, and type
-    let filteredResults = mockReports.filter(report => {
+    const filteredResults = mockReports.filter(report => {
       const matchesQuery = report.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           report.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           report.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -174,7 +198,7 @@ export default function AdvancedSearch() {
 
     setResults(filteredResults);
     setIsLoading(false);
-  };
+  }, [selectedCategory, selectedType]);
 
   // Debounced search
   useEffect(() => {
@@ -187,12 +211,12 @@ export default function AdvancedSearch() {
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [query, selectedCategory, selectedType]);
+  }, [query, performSearch]);
 
   // Handle click outside to close
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
@@ -203,7 +227,7 @@ export default function AdvancedSearch() {
     };
   }, []);
 
-  const handleSearch = (searchTerm) => {
+  const handleSearch = (searchTerm: string) => {
     setQuery(searchTerm);
     setIsOpen(true);
     
@@ -213,7 +237,7 @@ export default function AdvancedSearch() {
     }
   };
 
-  const handlePopularSearch = (term) => {
+  const handlePopularSearch = (term: string) => {
     handleSearch(term);
   };
 
@@ -223,7 +247,7 @@ export default function AdvancedSearch() {
     setIsOpen(false);
   };
 
-  const getTypeIcon = (type) => {
+  const getTypeIcon = (type: string) => {
     const typeConfig = contentTypes.find(t => t.id === type) || contentTypes[0];
     const Icon = typeConfig.icon;
     return <Icon className="h-4 w-4" />;
@@ -363,7 +387,7 @@ export default function AdvancedSearch() {
                 {results.length === 0 ? (
                   <div className="text-center py-8">
                     <Search className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                    <p className="text-muted-foreground">No results found for "{query}"</p>
+                    <p className="text-muted-foreground">No results found for &quot;{query}&quot;</p>
                     <p className="text-sm text-muted-foreground mt-1">
                       Try adjusting your search terms or filters
                     </p>

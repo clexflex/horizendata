@@ -1,5 +1,3 @@
-// File: src/components/forms/contact-form.tsx
-
 "use client";
 
 import React, { useState } from 'react';
@@ -37,10 +35,19 @@ interface ButtonProps {
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
   disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-const Button: React.FC<ButtonProps> = ({ children, variant = 'default', size = 'default', className = '', disabled = false, ...props }) => {
+const Button: React.FC<ButtonProps> = ({ 
+  children, 
+  variant = 'default', 
+  size = 'default', 
+  className = '', 
+  disabled = false, 
+  type = 'button',
+  ...props 
+}) => {
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
   const variants: Record<string, string> = {
     default: 'bg-primary text-primary-foreground hover:bg-primary/90',
@@ -56,6 +63,7 @@ const Button: React.FC<ButtonProps> = ({ children, variant = 'default', size = '
   
   return (
     <button 
+      type={type}
       className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`}
       disabled={disabled}
       {...props}
@@ -145,7 +153,7 @@ const validateForm = (data: FormData) => {
 };
 
 // Simulate API call
-const submitContactForm = async () => {
+const submitContactForm = async (): Promise<{ success: boolean; ticketId: string }> => {
   await new Promise(resolve => setTimeout(resolve, 2000));
   
   // Simulate random failure for demo
@@ -312,6 +320,7 @@ export default function ContactForm({ variant = 'full' }: ContactFormProps) {
         )}
         
         <Button
+          type="submit"
           onClick={handleSubmit}
           disabled={isSubmitting}
           className="w-full"

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   LineChart, 
   Line, 
@@ -223,22 +223,7 @@ export default function InteractiveCharts() {
   const [isLoading, setIsLoading] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(false);
 
-  // Initialize data
-  useEffect(() => {
-    refreshData();
-  }, [timeRange]);
-
-  // Auto-refresh functionality
-  useEffect(() => {
-    if (autoRefresh) {
-      const interval = setInterval(() => {
-        refreshData();
-      }, 10000); // Refresh every 10 seconds
-      return () => clearInterval(interval);
-    }
-  }, [autoRefresh]);
-
-  const refreshData = async () => {
+  const refreshData = useCallback(async () => {
     setIsLoading(true);
     
     // Simulate API delay
@@ -250,7 +235,22 @@ export default function InteractiveCharts() {
     setBarData(generateBarData());
     
     setIsLoading(false);
-  };
+  }, [timeRange]);
+
+  // Initialize data
+  useEffect(() => {
+    refreshData();
+  }, [refreshData]);
+
+  // Auto-refresh functionality
+  useEffect(() => {
+    if (autoRefresh) {
+      const interval = setInterval(() => {
+        refreshData();
+      }, 10000); // Refresh every 10 seconds
+      return () => clearInterval(interval);
+    }
+  }, [autoRefresh, refreshData]);
 
   const chartTypes = [
     { id: 'line', label: 'Line Chart', icon: Activity },

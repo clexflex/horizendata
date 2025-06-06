@@ -1,11 +1,7 @@
 "use client";
+
 import React, { useState } from 'react';
 import { Mail, Send, Check, AlertCircle, Loader2 } from 'lucide-react';
-interface FormData {
-  email: string;
-  name: string;
-  preferences: string[];
-}
 
 interface ButtonProps {
   children: React.ReactNode;
@@ -13,16 +9,26 @@ interface ButtonProps {
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
   disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
-const Button = ({ children, variant = 'default', size = 'default', className = '', disabled = false, ...props }) => {
+
+const Button: React.FC<ButtonProps> = ({ 
+  children, 
+  variant = 'default', 
+  size = 'default', 
+  className = '', 
+  disabled = false, 
+  type = 'button',
+  ...props 
+}) => {
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
-  const variants = {
+  const variants: Record<string, string> = {
     default: 'bg-primary text-primary-foreground hover:bg-primary/90',
     outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
     ghost: 'hover:bg-accent hover:text-accent-foreground',
   };
-  const sizes = {
+  const sizes: Record<string, string> = {
     default: 'h-10 px-4 py-2',
     sm: 'h-9 rounded-md px-3',
     lg: 'h-11 rounded-md px-8',
@@ -31,6 +37,7 @@ const Button = ({ children, variant = 'default', size = 'default', className = '
   
   return (
     <button 
+      type={type}
       className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`}
       disabled={disabled}
       {...props}
@@ -40,7 +47,17 @@ const Button = ({ children, variant = 'default', size = 'default', className = '
   );
 };
 
-const Input = ({ className = '', error = false, ...props }) => (
+interface InputProps {
+  className?: string;
+  error?: boolean;
+  type?: string;
+  placeholder?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+}
+
+const Input: React.FC<InputProps> = ({ className = '', error = false, ...props }) => (
   <input
     className={`flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
       error ? 'border-red-500 focus-visible:ring-red-500' : 'border-input'
@@ -49,18 +66,19 @@ const Input = ({ className = '', error = false, ...props }) => (
   />
 );
 
-
-
 // Email validation function
-const validateEmail = (email) => {
+const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
 // Simulate API call
-const subscribeToNewsletter = async (email, preferences) => {
+const subscribeToNewsletter = async (email: string, preferences: string[]): Promise<{ success: boolean; message: string }> => {
   // Simulate network delay
   await new Promise(resolve => setTimeout(resolve, 2000));
+  
+  // Use the parameters to avoid unused variable warnings
+  console.log('Subscribing email:', email, 'with preferences:', preferences);
   
   // Simulate random success/failure for demo
   if (Math.random() > 0.8) {
@@ -70,10 +88,14 @@ const subscribeToNewsletter = async (email, preferences) => {
   return { success: true, message: 'Successfully subscribed!' };
 };
 
-export default function NewsletterSignup({ variant = 'default' }) {
+interface NewsletterSignupProps {
+  variant?: 'default' | 'compact';
+}
+
+export default function NewsletterSignup({ variant = 'default' }: NewsletterSignupProps) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
-  const [preferences, setPreferences] = useState([]);
+  const [preferences, setPreferences] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -87,7 +109,7 @@ export default function NewsletterSignup({ variant = 'default' }) {
     { id: 'product-news', label: 'Product News', description: 'New features and product announcements' },
   ];
 
-  const handleEmailChange = (e) => {
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newEmail = e.target.value;
     setEmail(newEmail);
     
@@ -101,7 +123,7 @@ export default function NewsletterSignup({ variant = 'default' }) {
     }
   };
 
-  const handlePreferenceChange = (preferenceId) => {
+  const handlePreferenceChange = (preferenceId: string) => {
     setPreferences(prev => 
       prev.includes(preferenceId)
         ? prev.filter(id => id !== preferenceId)
@@ -109,7 +131,7 @@ export default function NewsletterSignup({ variant = 'default' }) {
     );
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate email
@@ -136,7 +158,8 @@ export default function NewsletterSignup({ variant = 'default' }) {
       // Reset success message after 5 seconds
       setTimeout(() => setSuccess(false), 5000);
     } catch (err) {
-      setError(err.message);
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -156,13 +179,14 @@ export default function NewsletterSignup({ variant = 'default' }) {
                 onChange={handleEmailChange}
                 error={!!emailError}
                 className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50"
-                onKeyPress={(e) => e.key === 'Enter' && handleSubmit(e)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSubmit(e as React.FormEvent)}
               />
               {emailError && (
                 <p className="text-xs text-red-300 mt-1">{emailError}</p>
               )}
             </div>
             <Button
+              type="submit"
               onClick={handleSubmit}
               disabled={isLoading || !!emailError || !email}
               className="bg-accent hover:bg-accent/90 text-accent-foreground"
@@ -246,7 +270,7 @@ export default function NewsletterSignup({ variant = 'default' }) {
                 value={email}
                 onChange={handleEmailChange}
                 error={!!emailError}
-                onKeyPress={(e) => e.key === 'Enter' && handleSubmit(e)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSubmit(e as React.FormEvent)}
               />
               {emailError && (
                 <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
@@ -304,6 +328,7 @@ export default function NewsletterSignup({ variant = 'default' }) {
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
+              type="submit"
               onClick={handleSubmit}
               size="lg"
               disabled={isLoading || !!emailError || !email}
