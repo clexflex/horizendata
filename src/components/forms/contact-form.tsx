@@ -1,3 +1,5 @@
+// File: src/components/forms/contact-form.tsx
+
 "use client";
 
 import React, { useState } from 'react';
@@ -14,14 +16,38 @@ import {
   Globe
 } from 'lucide-react';
 
-const Button = ({ children, variant = 'default', size = 'default', className = '', disabled = false, ...props }) => {
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  company: string;
+  jobTitle: string;
+  industry: string;
+  inquiryType: string;
+  urgency: string;
+  message: string;
+  newsletter: boolean;
+  preferredContact: string;
+}
+
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: 'default' | 'outline' | 'ghost';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+  className?: string;
+  disabled?: boolean;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+const Button: React.FC<ButtonProps> = ({ children, variant = 'default', size = 'default', className = '', disabled = false, ...props }) => {
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
-  const variants = {
+  const variants: Record<string, string> = {
     default: 'bg-primary text-primary-foreground hover:bg-primary/90',
     outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
     ghost: 'hover:bg-accent hover:text-accent-foreground',
   };
-  const sizes = {
+  const sizes: Record<string, string> = {
     default: 'h-10 px-4 py-2',
     sm: 'h-9 rounded-md px-3',
     lg: 'h-11 rounded-md px-8',
@@ -39,7 +65,17 @@ const Button = ({ children, variant = 'default', size = 'default', className = '
   );
 };
 
-const Input = ({ className = '', error = false, icon: Icon, ...props }) => (
+interface InputProps {
+  className?: string;
+  error?: boolean;
+  icon?: React.ComponentType<{ className?: string }>;
+  type?: string;
+  placeholder?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const Input: React.FC<InputProps> = ({ className = '', error = false, icon: Icon, ...props }) => (
   <div className="relative">
     {Icon && (
       <Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -55,7 +91,16 @@ const Input = ({ className = '', error = false, icon: Icon, ...props }) => (
   </div>
 );
 
-const Textarea = ({ className = '', error = false, ...props }) => (
+interface TextareaProps {
+  className?: string;
+  error?: boolean;
+  placeholder?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  rows?: number;
+}
+
+const Textarea: React.FC<TextareaProps> = ({ className = '', error = false, ...props }) => (
   <textarea
     className={`flex min-h-[80px] w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
       error ? 'border-red-500 focus-visible:ring-red-500' : 'border-input'
@@ -64,10 +109,9 @@ const Textarea = ({ className = '', error = false, ...props }) => (
   />
 );
 
-
 // Form validation
-const validateForm = (data) => {
-  const errors = {};
+const validateForm = (data: FormData) => {
+  const errors: Partial<Record<keyof FormData, string>> = {};
   
   if (!data.firstName?.trim()) {
     errors.firstName = 'First name is required';
@@ -101,7 +145,7 @@ const validateForm = (data) => {
 };
 
 // Simulate API call
-const submitContactForm = async (data) => {
+const submitContactForm = async () => {
   await new Promise(resolve => setTimeout(resolve, 2000));
   
   // Simulate random failure for demo
@@ -112,8 +156,12 @@ const submitContactForm = async (data) => {
   return { success: true, ticketId: `HZD-${Date.now()}` };
 };
 
-export default function ContactForm({ variant = 'full' }) {
-  const [formData, setFormData] = useState({
+interface ContactFormProps {
+  variant?: 'full' | 'compact';
+}
+
+export default function ContactForm({ variant = 'full' }: ContactFormProps) {
+  const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
     email: '',
@@ -128,7 +176,7 @@ export default function ContactForm({ variant = 'full' }) {
     preferredContact: 'email',
   });
   
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -151,7 +199,7 @@ export default function ContactForm({ variant = 'full' }) {
     { value: 'urgent', label: 'Urgent - Response within 4 hours', color: 'bg-red-100 text-red-800' },
   ];
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: keyof FormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Clear error when user starts typing
@@ -161,7 +209,7 @@ export default function ContactForm({ variant = 'full' }) {
     setSubmitError('');
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const validationErrors = validateForm(formData);
@@ -175,11 +223,12 @@ export default function ContactForm({ variant = 'full' }) {
     setSubmitError('');
     
     try {
-      const result = await submitContactForm(formData);
+      const result = await submitContactForm();
       setTicketId(result.ticketId);
       setIsSubmitted(true);
     } catch (error) {
-      setSubmitError(error.message);
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      setSubmitError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -292,7 +341,7 @@ export default function ContactForm({ variant = 'full' }) {
         </div>
         <h3 className="text-2xl font-bold mb-2">Message Sent Successfully!</h3>
         <p className="text-muted-foreground mb-4">
-          Thank you for contacting us. We've received your message and will get back to you soon.
+          Thank you for contacting us. We&apos;ve received your message and will get back to you soon.
         </p>
         <div className="bg-muted/50 rounded-lg p-4 mb-6 max-w-md mx-auto">
           <p className="text-sm font-medium">Reference ID: {ticketId}</p>
@@ -301,7 +350,7 @@ export default function ContactForm({ variant = 'full' }) {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button variant="outline" onClick={resetForm}>
+          <Button onClick={resetForm}>
             Send Another Message
           </Button>
           <Button>
@@ -384,7 +433,7 @@ export default function ContactForm({ variant = 'full' }) {
 
         {/* Contact Form */}
         <div className="lg:col-span-2">
-          <div className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Personal Information */}
             <div>
               <h4 className="font-medium mb-4">Personal Information</h4>
@@ -599,7 +648,7 @@ export default function ContactForm({ variant = 'full' }) {
 
             {/* Submit Button */}
             <Button
-              onClick={handleSubmit}
+              type="submit"
               size="lg"
               disabled={isSubmitting}
               className="w-full"
@@ -625,7 +674,7 @@ export default function ContactForm({ variant = 'full' }) {
                 and consent to being contacted by our team.
               </p>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>

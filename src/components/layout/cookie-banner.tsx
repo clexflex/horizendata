@@ -2,7 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { Cookie, Settings, Check, X, Eye, Shield, BarChart3, Target } from 'lucide-react';
-
+interface CookiePreferences {
+  necessary: boolean;
+  analytics: boolean;
+  functional: boolean;
+  marketing: boolean;
+}
 const Button = ({ children, variant = 'default', size = 'default', className = '', ...props }) => {
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
   const variants = {
@@ -138,7 +143,7 @@ const hasGivenConsent = () => {
 export default function CookieBanner() {
   const [isVisible, setIsVisible] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-  const [preferences, setPreferences] = useState({
+  const [preferences, setPreferences] = useState<CookiePreferences>({
     necessary: true,
     analytics: false,
     functional: false,
@@ -325,7 +330,7 @@ export default function CookieBanner() {
                 <h3 className="font-medium mb-1">We use cookies</h3>
                 <p className="text-sm text-muted-foreground">
                   We use cookies to enhance your browsing experience, serve personalized content, and analyze our traffic. 
-                  By clicking "Accept All", you consent to our use of cookies.
+                  By clicking &quot;Accept All&quot;, you consent to our use of cookies.
                 </p>
               </div>
             </div>

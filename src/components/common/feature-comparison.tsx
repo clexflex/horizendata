@@ -1,3 +1,5 @@
+// File: src/components/common/feature-comparison.tsx
+
 "use client";
 
 import React, { useState } from 'react';
@@ -18,15 +20,23 @@ import {
   Headphones
 } from 'lucide-react';
 
-const Button = ({ children, variant = 'default', size = 'default', className = '', ...props }) => {
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: 'default' | 'outline' | 'ghost' | 'secondary';
+  size?: 'default' | 'sm' | 'lg';
+  className?: string;
+  onClick?: () => void;
+}
+
+const Button: React.FC<ButtonProps> = ({ children, variant = 'default', size = 'default', className = '', ...props }) => {
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
-  const variants = {
+  const variants: Record<string, string> = {
     default: 'bg-primary text-primary-foreground hover:bg-primary/90',
     outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
     ghost: 'hover:bg-accent hover:text-accent-foreground',
     secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
   };
-  const sizes = {
+  const sizes: Record<string, string> = {
     default: 'h-10 px-4 py-2',
     sm: 'h-9 rounded-md px-3',
     lg: 'h-11 rounded-md px-8',
@@ -42,8 +52,14 @@ const Button = ({ children, variant = 'default', size = 'default', className = '
   );
 };
 
-const Badge = ({ children, className = '', variant = 'default' }) => {
-  const variants = {
+interface BadgeProps {
+  children: React.ReactNode;
+  className?: string;
+  variant?: 'default' | 'secondary' | 'success' | 'warning' | 'premium';
+}
+
+const Badge: React.FC<BadgeProps> = ({ children, className = '', variant = 'default' }) => {
+  const variants: Record<string, string> = {
     default: 'bg-primary text-primary-foreground',
     secondary: 'bg-secondary text-secondary-foreground',
     success: 'bg-green-500 text-white',
@@ -59,7 +75,12 @@ const Badge = ({ children, className = '', variant = 'default' }) => {
 };
 
 // Tooltip component for feature explanations
-const Tooltip = ({ children, content }) => {
+interface TooltipProps {
+  children: React.ReactNode;
+  content: string;
+}
+
+const Tooltip: React.FC<TooltipProps> = ({ children, content }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   return (
@@ -81,8 +102,41 @@ const Tooltip = ({ children, content }) => {
   );
 };
 
+// Type definitions
+interface Plan {
+  id: string;
+  name: string;
+  price: string;
+  period: string;
+  description: string;
+  popular?: boolean;
+  premium?: boolean;
+  cta: string;
+  ctaVariant: 'default' | 'outline' | 'secondary';
+}
+
+interface FeatureValue {
+  type: 'check' | 'cross' | 'premium' | 'unlimited' | 'limited' | 'basic' | 'number';
+  value: string;
+  note?: string;
+}
+
+interface Feature {
+  id: string;
+  name: string;
+  description: string;
+  values: Record<string, FeatureValue>;
+}
+
+interface FeatureCategory {
+  id: string;
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
+  features: Feature[];
+}
+
 // Plans configuration
-const plans = [
+const plans: Plan[] = [
   {
     id: 'free',
     name: 'Free',
@@ -127,7 +181,7 @@ const plans = [
 ];
 
 // Feature categories and their features
-const featureCategories = [
+const featureCategories: FeatureCategory[] = [
   {
     id: 'core',
     name: 'Core Features',
@@ -364,7 +418,12 @@ const featureCategories = [
 ];
 
 // Feature value renderer
-const FeatureValue = ({ value, planId }) => {
+interface FeatureValueProps {
+  value: FeatureValue;
+  planId: string;
+}
+
+const FeatureValue: React.FC<FeatureValueProps> = ({ value }) => {
   const { type, value: displayValue, note } = value;
 
   const renderIcon = () => {
@@ -414,7 +473,13 @@ const FeatureValue = ({ value, planId }) => {
 };
 
 // Feature row component
-const FeatureRow = ({ feature, plans, isEven }) => (
+interface FeatureRowProps {
+  feature: Feature;
+  plans: Plan[];
+  isEven: boolean;
+}
+
+const FeatureRow: React.FC<FeatureRowProps> = ({ feature, plans, isEven }) => (
   <tr className={`border-b ${isEven ? 'bg-muted/20' : ''}`}>
     <td className="p-4 text-left">
       <div className="flex items-center gap-2">
@@ -424,7 +489,7 @@ const FeatureRow = ({ feature, plans, isEven }) => (
         </Tooltip>
       </div>
     </td>
-    {plans.map(plan => (
+    {plans.map((plan) => (
       <td key={plan.id} className="p-4 text-center">
         <FeatureValue value={feature.values[plan.id]} planId={plan.id} />
       </td>
@@ -433,7 +498,14 @@ const FeatureRow = ({ feature, plans, isEven }) => (
 );
 
 // Category section component
-const CategorySection = ({ category, plans, isExpanded, onToggle }) => {
+interface CategorySectionProps {
+  category: FeatureCategory;
+  plans: Plan[];
+  isExpanded: boolean;
+  onToggle: () => void;
+}
+
+const CategorySection: React.FC<CategorySectionProps> = ({ category, plans, isExpanded, onToggle }) => {
   const Icon = category.icon;
 
   return (
@@ -453,7 +525,7 @@ const CategorySection = ({ category, plans, isExpanded, onToggle }) => {
             )}
           </button>
         </td>
-        {plans.map(plan => (
+        {plans.map((plan) => (
           <td key={plan.id} className="p-4"></td>
         ))}
       </tr>
@@ -475,7 +547,7 @@ export default function FeatureComparisonTable() {
     new Set(['core', 'data-access']) // Expand first two categories by default
   );
 
-  const toggleCategory = (categoryId) => {
+  const toggleCategory = (categoryId: string) => {
     const newExpanded = new Set(expandedCategories);
     if (newExpanded.has(categoryId)) {
       newExpanded.delete(categoryId);
@@ -528,7 +600,7 @@ export default function FeatureComparisonTable() {
                 <th className="p-6 text-left font-semibold min-w-[300px]">
                   Features
                 </th>
-                {plans.map(plan => (
+                {plans.map((plan) => (
                   <th key={plan.id} className="p-6 text-center min-w-[200px]">
                     <div className="space-y-4">
                       <div>
@@ -564,7 +636,7 @@ export default function FeatureComparisonTable() {
               </tr>
             </thead>
             <tbody>
-              {featureCategories.map(category => (
+              {featureCategories.map((category) => (
                 <CategorySection
                   key={category.id}
                   category={category}

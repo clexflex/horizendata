@@ -357,7 +357,7 @@ export default function FAQSection() {
             Frequently Asked Questions
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Find answers to common questions about Horizendata's platform, features, and services.
+            Find answers to common questions about Horizendata&apos;s platform, features, and services.
           </p>
         </div>
 
@@ -471,7 +471,7 @@ export default function FAQSection() {
           <div className="bg-muted/30 rounded-lg p-8">
             <h3 className="text-xl font-semibold mb-2">Still have questions?</h3>
             <p className="text-muted-foreground mb-6">
-              Can't find the answer you're looking for? Our support team is here to help.
+              Can&apos;t find the answer you&apos;re looking for? Our support team is here to help.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button>

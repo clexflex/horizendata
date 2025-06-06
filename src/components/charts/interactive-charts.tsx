@@ -29,17 +29,25 @@ import {
   Maximize,
   RefreshCw,
   Calendar,
-
 } from 'lucide-react';
 
-const Button = ({ children, variant = 'default', size = 'default', className = '', ...props }) => {
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: 'default' | 'outline' | 'ghost';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+  className?: string;
+  onClick?: () => void;
+  disabled?: boolean;
+}
+
+const Button: React.FC<ButtonProps> = ({ children, variant = 'default', size = 'default', className = '', ...props }) => {
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
-  const variants = {
+  const variants: Record<string, string> = {
     default: 'bg-primary text-primary-foreground hover:bg-primary/90',
     outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
     ghost: 'hover:bg-accent hover:text-accent-foreground',
   };
-  const sizes = {
+  const sizes: Record<string, string> = {
     default: 'h-10 px-4 py-2',
     sm: 'h-9 rounded-md px-3',
     lg: 'h-11 rounded-md px-8',
@@ -56,8 +64,14 @@ const Button = ({ children, variant = 'default', size = 'default', className = '
   );
 };
 
-const Badge = ({ children, className = '', variant = 'default' }) => {
-  const variants = {
+interface BadgeProps {
+  children: React.ReactNode;
+  className?: string;
+  variant?: 'default' | 'success' | 'warning' | 'error';
+}
+
+const Badge: React.FC<BadgeProps> = ({ children, className = '', variant = 'default' }) => {
+  const variants: Record<string, string> = {
     default: 'bg-primary text-primary-foreground',
     success: 'bg-green-500 text-white',
     warning: 'bg-yellow-500 text-white',
@@ -71,9 +85,31 @@ const Badge = ({ children, className = '', variant = 'default' }) => {
   );
 };
 
+interface TrendData {
+  month: string;
+  value: number;
+  growth: number;
+  volume: number;
+}
+
+interface PieDataItem {
+  name: string;
+  value: number;
+  color: string;
+  change: number;
+}
+
+interface BarDataItem {
+  category: string;
+  Q1: number;
+  Q2: number;
+  Q3: number;
+  Q4: number;
+}
+
 // Sample data generators
-const generateTrendData = (months = 12) => {
-  const data = [];
+const generateTrendData = (months = 12): TrendData[] => {
+  const data: TrendData[] = [];
   let baseValue = 1000;
   
   for (let i = 0; i < months; i++) {
@@ -94,7 +130,7 @@ const generateTrendData = (months = 12) => {
   return data;
 };
 
-const generatePieData = () => [
+const generatePieData = (): PieDataItem[] => [
   { name: 'Cloud Computing', value: 32, color: '#3b82f6', change: 5.2 },
   { name: 'AI & Machine Learning', value: 28, color: '#10b981', change: 8.7 },
   { name: 'IoT & Edge Computing', value: 18, color: '#f59e0b', change: 3.1 },
@@ -102,7 +138,7 @@ const generatePieData = () => [
   { name: 'Cybersecurity', value: 10, color: '#8b5cf6', change: 4.8 },
 ];
 
-const generateBarData = () => [
+const generateBarData = (): BarDataItem[] => [
   { category: 'Healthcare', Q1: 4000, Q2: 3000, Q3: 5000, Q4: 4500 },
   { category: 'Technology', Q1: 3000, Q2: 4500, Q3: 4000, Q4: 5500 },
   { category: 'Finance', Q1: 2000, Q2: 3200, Q3: 2800, Q4: 3800 },
@@ -111,7 +147,13 @@ const generateBarData = () => [
 ];
 
 // Custom tooltip component
-const CustomTooltip = ({ active, payload, label }) => {
+interface TooltipProps {
+  active?: boolean;
+  payload?: Array<{ name: string; value: number; color: string }>;
+  label?: string;
+}
+
+const CustomTooltip: React.FC<TooltipProps> = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-background border border-border rounded-lg shadow-lg p-3">
@@ -128,7 +170,16 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 // Chart wrapper component
-const ChartCard = ({ title, subtitle, children, actions, trending, loading = false }) => (
+interface ChartCardProps {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+  actions?: React.ReactNode;
+  trending?: { positive: boolean; value: string };
+  loading?: boolean;
+}
+
+const ChartCard: React.FC<ChartCardProps> = ({ title, subtitle, children, actions, trending, loading = false }) => (
   <div className="bg-background border border-border rounded-xl shadow-sm overflow-hidden">
     <div className="p-6 border-b border-border">
       <div className="flex items-start justify-between">
@@ -164,9 +215,9 @@ const ChartCard = ({ title, subtitle, children, actions, trending, loading = fal
 );
 
 export default function InteractiveCharts() {
-  const [trendData, setTrendData] = useState([]);
-  const [pieData, setPieData] = useState([]);
-  const [barData, setBarData] = useState([]);
+  const [trendData, setTrendData] = useState<TrendData[]>([]);
+  const [pieData, setPieData] = useState<PieDataItem[]>([]);
+  const [barData, setBarData] = useState<BarDataItem[]>([]);
   const [selectedChart, setSelectedChart] = useState('line');
   const [timeRange, setTimeRange] = useState('12m');
   const [isLoading, setIsLoading] = useState(false);
@@ -180,7 +231,9 @@ export default function InteractiveCharts() {
   // Auto-refresh functionality
   useEffect(() => {
     if (autoRefresh) {
-      const interval = setInterval(refreshData, 10000); // Refresh every 10 seconds
+      const interval = setInterval(() => {
+        refreshData();
+      }, 10000); // Refresh every 10 seconds
       return () => clearInterval(interval);
     }
   }, [autoRefresh]);
@@ -213,11 +266,6 @@ export default function InteractiveCharts() {
   ];
 
   const renderChart = () => {
-    const commonProps = {
-      data: selectedChart === 'pie' ? pieData : selectedChart === 'bar' ? barData : trendData,
-      height: 400,
-    };
-
     switch (selectedChart) {
       case 'line':
         return (

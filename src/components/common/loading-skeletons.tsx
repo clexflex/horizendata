@@ -116,14 +116,13 @@ const TextSkeleton = ({ lines = 3 }) => (
 );
 
 // Avatar skeleton
-const AvatarSkeleton = ({ size = "medium" }) => {
-  const sizes = {
-    small: "h-8 w-8",
-    medium: "h-12 w-12",
-    large: "h-16 w-16",
-  };
-  
-  return <Skeleton className={`${sizes[size]} rounded-full`} />;
+const AvatarSkeleton = ({ size = "medium" }) => { 
+  const sizeClasses: Record<string, string> = {
+  small: "h-8 w-8",
+  medium: "h-12 w-12", 
+  large: "h-16 w-16",
+};
+return <Skeleton className={`${sizeClasses[size]} rounded-full`} />;
 };
 
 // List item skeleton

@@ -14,7 +14,8 @@ import {
   Crown,
   Info,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Headphones
 } from 'lucide-react';
 
 const Button = ({ children, variant = 'default', size = 'default', className = '', ...props }) => {

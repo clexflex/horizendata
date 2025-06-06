@@ -1,8 +1,20 @@
 "use client";
-
 import React, { useState } from 'react';
 import { Mail, Send, Check, AlertCircle, Loader2 } from 'lucide-react';
+interface FormData {
+  email: string;
+  name: string;
+  preferences: string[];
+}
 
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: 'default' | 'outline' | 'ghost';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+  className?: string;
+  disabled?: boolean;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+}
 const Button = ({ children, variant = 'default', size = 'default', className = '', disabled = false, ...props }) => {
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
   const variants = {
@@ -201,7 +213,7 @@ export default function NewsletterSignup({ variant = 'default' }) {
           </div>
           <h4 className="text-xl font-semibold mb-2">Welcome aboard!</h4>
           <p className="text-muted-foreground mb-4">
-            You've successfully subscribed to our newsletter. Check your email for confirmation.
+            You&apos;ve successfully subscribed to our newsletter. Check your email for confirmation.
           </p>
           <Button
             variant="outline"

@@ -1,7 +1,24 @@
 "use client";
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Filter, X, TrendingUp, FileText, BarChart3 } from 'lucide-react';
+interface SearchResult {
+  id: number;
+  title: string;
+  category: string;
+  type: string;
+  description: string;
+  tags: string[];
+  publishDate: string;
+  trending: boolean;
+}
+
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: 'default' | 'outline' | 'ghost';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+  className?: string;
+  onClick?: () => void;
+}
 
 const Button = ({ children, variant = 'default', size = 'default', className = '', ...props }) => {
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
@@ -124,10 +141,10 @@ export default function AdvancedSearch() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedType, setSelectedType] = useState('all');
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [recentSearches, setRecentSearches] = useState(['AI trends', 'Healthcare data']);
-  
+  const [recentSearches, setRecentSearches] = useState<string[]>(['AI trends', 'Healthcare data']);
+
   const searchRef = useRef(null);
   const resultsRef = useRef(null);
 
