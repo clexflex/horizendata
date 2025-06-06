@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   BarChart3, 
   Search, 
@@ -67,6 +67,21 @@ export default function HorizendataHomepage() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Use useCallback to prevent unnecessary re-renders
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  }, []);
+
+  const handleSearchSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Searching for:', searchQuery);
+    // Handle search logic here
+  }, [searchQuery]);
+
+  const handlePopularSearchClick = useCallback((term: string) => {
+    setSearchQuery(term);
+  }, []);
+
   // Hero Section
   const HeroSection = () => (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
@@ -103,7 +118,8 @@ export default function HorizendataHomepage() {
             Horizendata delivers deep market research, forecasting, and strategic intelligence for data-driven decision makers.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto mb-12">
+          {/* Fixed Search Form */}
+          <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto mb-12">
             <div className="relative flex-grow group">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/20 rounded-full blur-xl opacity-50 group-hover:opacity-75 transition-all duration-300" />
               <div className="relative">
@@ -113,23 +129,27 @@ export default function HorizendataHomepage() {
                   className="pl-12 h-14 bg-background/80 backdrop-blur-sm border-primary/20 rounded-full text-lg shadow-lg focus:shadow-primary/25 focus:border-primary/40 focus:bg-background/95"
                   placeholder="Search for market reports, statistics, or industries..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={handleSearchChange}
                 />
               </div>
             </div>
-            <Button className="h-14 px-8 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-105">
+            <Button 
+              type="submit"
+              className="h-14 px-8 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-105"
+            >
               <span>Search</span>
               <ChevronRight className="ml-2 h-5 w-5" />
             </Button>
-          </div>
+          </form>
           
           <div className="flex flex-wrap justify-center gap-3 text-sm text-muted-foreground mb-20">
             <span>Popular searches:</span>
             {['Healthcare Market', 'AI Trends', 'Clean Energy', 'Financial Services', 'EV Forecast'].map((term) => (
               <button
                 key={term}
+                type="button"
                 className="hover:text-primary transition-colors relative group"
-                onClick={() => setSearchQuery(term)}
+                onClick={() => handlePopularSearchClick(term)}
               >
                 <span className="relative z-10">{term}</span>
                 <span className="absolute inset-0 bg-primary/5 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
@@ -196,6 +216,7 @@ export default function HorizendataHomepage() {
             {['All', 'Technology', 'Finance', 'Healthcare', 'Energy'].map((category) => (
               <button
                 key={category}
+                type="button"
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   activeCategory === category
                     ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'

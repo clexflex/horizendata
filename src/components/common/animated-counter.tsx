@@ -1,13 +1,47 @@
 "use client";
 
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { TrendingUp, TrendingDown, Users, BarChart3, Globe, Building } from 'lucide-react';
 
+// Type definitions
+interface TrendData {
+  positive: boolean;
+  value: string;
+}
+
+interface CounterProps {
+  value: string | number;
+  label: string;
+  suffix?: string;
+  prefix?: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  trend?: TrendData;
+  description?: string;
+  duration?: number;
+  delay?: number;
+  className?: string;
+  variant?: 'default' | 'gradient' | 'minimal' | 'card';
+}
+
+interface StatsGridProps {
+  stats: CounterProps[];
+  className?: string;
+  variant?: 'default' | 'gradient' | 'minimal' | 'card';
+  staggerDelay?: number;
+}
+
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: 'default' | 'outline' | 'ghost';
+  size?: 'default' | 'sm' | 'lg';
+  className?: string;
+  onClick?: () => void;
+}
+
 // Hook for intersection observer to trigger animations when in view
-const useIntersectionObserver = (options = {}) => {
+const useIntersectionObserver = (options: IntersectionObserverInit = {}) => {
   const [isIntersecting, setIsIntersecting] = useState(false);
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
@@ -30,34 +64,34 @@ const useIntersectionObserver = (options = {}) => {
     };
   }, [options]);
 
-  return [ref, isIntersecting];
+  return [ref, isIntersecting] as const;
 };
 
 // Easing functions for smooth animations
-const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-const easeOutExpo = (t) => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3);
+const easeOutExpo = (t: number): number => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
 
 // Counter hook with animation
 const useAnimatedCounter = (
-  endValue, 
-  duration = 2000, 
-  startOnMount = false, 
+  endValue: number,
+  duration = 2000,
+  startOnMount = false,
   easingFunction = easeOutCubic,
   formatNumber = true
 ) => {
   const [count, setCount] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
-  const frameRef = useRef();
-  const startTimeRef = useRef();
+  const frameRef = useRef<number | undefined>(undefined);
+  const startTimeRef = useRef<number | undefined>(undefined);
 
-  const startAnimation = () => {
+  const startAnimation = useCallback(() => {
     if (isAnimating) return;
     
     setIsAnimating(true);
     startTimeRef.current = Date.now();
     
     const animate = () => {
-      const elapsed = Date.now() - startTimeRef.current;
+      const elapsed = Date.now() - (startTimeRef.current || 0);
       const progress = Math.min(elapsed / duration, 1);
       const easedProgress = easingFunction(progress);
       
@@ -72,15 +106,15 @@ const useAnimatedCounter = (
     };
     
     frameRef.current = requestAnimationFrame(animate);
-  };
+  }, [isAnimating, duration, easingFunction, endValue]);
 
-  const resetAnimation = () => {
+  const resetAnimation = useCallback(() => {
     if (frameRef.current) {
       cancelAnimationFrame(frameRef.current);
     }
     setCount(0);
     setIsAnimating(false);
-  };
+  }, []);
 
   useEffect(() => {
     if (startOnMount) {
@@ -92,7 +126,7 @@ const useAnimatedCounter = (
         cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [endValue, duration, startOnMount]);
+  }, [endValue, duration, startOnMount, startAnimation]);
 
   const formattedCount = formatNumber && count > 0 ? count.toLocaleString() : count;
 
@@ -100,7 +134,7 @@ const useAnimatedCounter = (
 };
 
 // Individual counter component
-const Counter = ({ 
+const Counter: React.FC<CounterProps> = ({ 
   value, 
   label, 
   suffix = '', 
@@ -117,7 +151,7 @@ const Counter = ({
   const [hasStarted, setHasStarted] = useState(false);
   
   // Parse numeric value from string (e.g., "15K+" -> 15000)
-  const parseValue = (val) => {
+  const parseValue = (val: string | number): number => {
     if (typeof val === 'number') return val;
     
     const str = val.toString().toLowerCase();
@@ -160,28 +194,32 @@ const Counter = ({
   }, [isVisible, hasStarted, startAnimation, delay]);
 
   // Format the display value
-  const formatDisplayValue = (count) => {
+  const formatDisplayValue = (count: string | number): string => {
+    const numCount = typeof count === 'string' ? parseFloat(count.replace(/,/g, '')) : count;
+    
     if (numericValue >= 1000000000) {
-      return `${prefix}${(count / 1000000000).toFixed(1)}B${suffix}`;
+      return `${prefix}${(numCount / 1000000000).toFixed(1)}B${suffix}`;
     } else if (numericValue >= 1000000) {
-      return `${prefix}${(count / 1000000).toFixed(1)}M${suffix}`;
+      return `${prefix}${(numCount / 1000000).toFixed(1)}M${suffix}`;
     } else if (numericValue >= 1000) {
-      return `${prefix}${(count / 1000).toFixed(numericValue % 1000 === 0 ? 0 : 1)}K${suffix}`;
+      return `${prefix}${(numCount / 1000).toFixed(numericValue % 1000 === 0 ? 0 : 1)}K${suffix}`;
     }
     return `${prefix}${count}${suffix}`;
   };
 
-  const variants = {
+  const variants: Record<string, string> = {
     default: 'bg-background border border-border',
     gradient: 'bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/20',
     minimal: 'bg-transparent',
     card: 'bg-card border border-border shadow-sm',
   };
 
+  const variantClass = variants[variant] || variants.default;
+
   return (
     <div
       ref={ref}
-      className={`text-center p-6 rounded-lg transition-all duration-500 hover:scale-105 group ${variants[variant]} ${className}`}
+      className={`text-center p-6 rounded-lg transition-all duration-500 hover:scale-105 group ${variantClass} ${className}`}
     >
       {Icon && (
         <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mb-4 group-hover:bg-primary/20 transition-colors">
@@ -222,7 +260,7 @@ const Counter = ({
 };
 
 // Statistics grid component
-const StatsGrid = ({ stats, className = '', variant = 'default', staggerDelay = 200 }) => {
+const StatsGrid: React.FC<StatsGridProps> = ({ stats, className = '', variant = 'default', staggerDelay = 200 }) => {
   return (
     <div className={`grid grid-cols-2 md:grid-cols-4 gap-6 ${className}`}>
       {stats.map((stat, index) => (
@@ -238,8 +276,8 @@ const StatsGrid = ({ stats, className = '', variant = 'default', staggerDelay = 
 };
 
 // Performance metrics component
-const PerformanceMetrics = () => {
-  const metrics = [
+const PerformanceMetrics: React.FC = () => {
+  const metrics: CounterProps[] = [
     {
       value: '7800',
       label: 'Active Users',
@@ -275,7 +313,7 @@ const PerformanceMetrics = () => {
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold mb-4">Platform Performance</h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Real-time metrics showing our platform's reach and impact across global markets.
+          Real-time metrics showing our platform&apos;s reach and impact across global markets.
         </p>
       </div>
       
@@ -289,8 +327,8 @@ const PerformanceMetrics = () => {
 };
 
 // Company milestones component
-const CompanyMilestones = () => {
-  const milestones = [
+const CompanyMilestones: React.FC = () => {
+  const milestones: CounterProps[] = [
     {
       value: '2.4T',
       label: 'Market Data Value',
@@ -342,10 +380,10 @@ const CompanyMilestones = () => {
 };
 
 // Growth metrics component
-const GrowthMetrics = () => {
-  const [timeframe, setTimeframe] = useState('month');
+const GrowthMetrics: React.FC = () => {
+  const [timeframe, setTimeframe] = useState<'month' | 'quarter' | 'year'>('month');
   
-  const getMetrics = (period) => {
+  const getMetrics = (period: 'month' | 'quarter' | 'year'): CounterProps[] => {
     const baseMetrics = {
       month: [
         { value: '15.2', suffix: '%', label: 'Revenue Growth' },
@@ -370,22 +408,25 @@ const GrowthMetrics = () => {
     return baseMetrics[period];
   };
 
-  const Button = ({ children, variant = 'default', size = 'default', className = '', ...props }) => {
+  const Button: React.FC<ButtonProps> = ({ children, variant = 'default', size = 'default', className = '', ...props }) => {
     const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
-    const variants = {
+    const variants: Record<string, string> = {
       default: 'bg-primary text-primary-foreground hover:bg-primary/90',
       outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
       ghost: 'hover:bg-accent hover:text-accent-foreground',
     };
-    const sizes = {
+    const sizes: Record<string, string> = {
       default: 'h-10 px-4 py-2',
       sm: 'h-9 rounded-md px-3',
       lg: 'h-11 rounded-md px-8',
     };
     
+    const variantClass = variants[variant] || variants.default;
+    const sizeClass = sizes[size] || sizes.default;
+    
     return (
       <button 
-        className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`}
+        className={`${baseClasses} ${variantClass} ${sizeClass} ${className}`}
         {...props}
       >
         {children}
@@ -399,7 +440,7 @@ const GrowthMetrics = () => {
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold mb-4">Growth Metrics</h2>
           <div className="flex items-center justify-center gap-2 mb-8">
-            {['month', 'quarter', 'year'].map((period) => (
+            {(['month', 'quarter', 'year'] as const).map((period) => (
               <Button
                 key={period}
                 variant={timeframe === period ? 'default' : 'outline'}
@@ -425,7 +466,7 @@ const GrowthMetrics = () => {
 
 // Main demo component
 export default function AnimatedCounters() {
-  const heroStats = [
+  const heroStats: CounterProps[] = [
     {
       value: '15K',
       suffix: '+',

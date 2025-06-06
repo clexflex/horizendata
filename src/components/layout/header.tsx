@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   BarChart3, 
   Search, 
@@ -16,9 +18,15 @@ import { useTheme } from '@/components/theme-provider';
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
+  const handleLogoClick = () => {
+    router.push('/');
+    setIsMobileMenuOpen(false);
   };
 
   const navigation = [
@@ -67,11 +75,14 @@ const Header = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background/80 backdrop-blur-md border-b">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        {/* Logo */}
-        <div className="flex items-center space-x-2">
+        {/* Logo - Now clickable */}
+        <button
+          onClick={handleLogoClick}
+          className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+        >
           <BarChart3 className="h-8 w-8 text-primary" />
           <span className="font-bold text-xl tracking-tight">Horizendata</span>
-        </div>
+        </button>
         
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
@@ -88,21 +99,21 @@ const Header = () => {
                   <div className="absolute top-full left-0 mt-2 w-48 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                     <div className="py-2">
                       {item.dropdownItems?.map((dropdownItem) => (
-                        <a
+                        <Link
                           key={dropdownItem.name}
                           href={dropdownItem.href}
                           className="block px-4 py-2 text-sm hover:bg-muted hover:text-primary transition-colors"
                         >
                           {dropdownItem.name}
-                        </a>
+                        </Link>
                       ))}
                     </div>
                   </div>
                 </>
               ) : (
-                <a href={item.href} className="hover:text-primary transition-colors">
+                <Link href={item.href} className="hover:text-primary transition-colors">
                   {item.name}
-                </a>
+                </Link>
               )}
             </div>
           ))}
@@ -150,24 +161,24 @@ const Header = () => {
           <div className="px-4 py-6 space-y-4">
             {navigation.map((item) => (
               <div key={item.name}>
-                <a
+                <Link
                   href={item.href}
                   className="block py-2 text-lg font-medium hover:text-primary transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.name}
-                </a>
+                </Link>
                 {item.hasDropdown && item.dropdownItems && (
                   <div className="ml-4 mt-2 space-y-2">
                     {item.dropdownItems.map((dropdownItem) => (
-                      <a
+                      <Link
                         key={dropdownItem.name}
                         href={dropdownItem.href}
                         className="block py-1 text-muted-foreground hover:text-primary transition-colors"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         {dropdownItem.name}
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 )}
